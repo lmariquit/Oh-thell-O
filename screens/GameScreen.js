@@ -20,8 +20,8 @@ export default class App extends React.Component {
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 2, 1, 0, 0, 0],
+        [0, 0, 0, 1, 2, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -29,10 +29,10 @@ export default class App extends React.Component {
       validMoves: [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 2, 0, 0, 0],
+        [0, 0, 1, 0, 0, 2, 0, 0],
+        [0, 0, 2, 0, 0, 1, 0, 0],
+        [0, 0, 0, 2, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
       ],
@@ -62,20 +62,21 @@ export default class App extends React.Component {
   // }
 
   initializeGame = () => {
+    console.log('initializeGame()');
     this.setState({
       gameState: [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, -1, 1, 0, 0, 0],
-        [0, 0, 0, 1, -1, 0, 0, 0],
+        [0, 0, 0, 2, 1, 0, 0, 0],
+        [0, 0, 0, 1, 2, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
       ],
       currentPlayer: 1,
     });
-    this.calculateValidMoves();
+    this.calculateValidMoves(this.state.currentPlayer, this.state.gameState);
   };
 
   whiteCount() {
@@ -83,7 +84,7 @@ export default class App extends React.Component {
     let cells = this.state.gameState;
     cells.map(row => {
       row.map(elem => {
-        if (elem === -1) {
+        if (elem === 2) {
           count++;
         }
       });
@@ -109,7 +110,7 @@ export default class App extends React.Component {
     return this.state.SIZE2 - this.whiteCount - this.blackCount;
   }
 
-  //returns 1 if player 1 wins, -1 for player 2 win, and 0 if no winner
+  //returns 1 if player 1 wins, 2 for player 2 win, and 0 if no winner
   // getWinner = () => {
   // TO-DO
   // };
@@ -136,6 +137,10 @@ export default class App extends React.Component {
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
         if (gameBoard[row][col] === 0) {
+          // console.log(
+          //   `gameboard[${row}][${col}] before calculate moves`,
+          //   gameBoard[row][col]
+          // );
           // check above current spot
           let nw = this.validMove(who, -1, -1, row, col, gameBoard);
           let nn = this.validMove(who, -1, 0, row, col, gameBoard);
@@ -150,6 +155,10 @@ export default class App extends React.Component {
 
           if (nw || nn || ne || ww || ee || sw || ss || se) {
             validBoard[row][col] = 'v';
+            console.log(
+              `line 158 validBoard[${row}][${col}] after calculate`,
+              validBoard[row][col]
+            );
           }
           // console.log(
           //   `calculated validBoard[${row}][${col}]: ${validBoard[row][col]} `
@@ -164,7 +173,8 @@ export default class App extends React.Component {
   // check if position at row, col contains the oppsite of currentPLayer on board && checks if the line adding deltaRow + row || deltaCol + col eventually ends in currentPlayer coloe
   // eslint-disable-next-line complexity
   validMove = (who, deltaRow, deltaCol, row, col, gameBoard) => {
-    let other = this.state.currentPlayer === 1 ? -1 : 1;
+    // console.log('validMove gameboard param: ', gameBoard);
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
 
     if (deltaRow + row < 0 || row + deltaRow > 7) {
       return false;
@@ -172,7 +182,7 @@ export default class App extends React.Component {
     if (deltaCol + col < 0 || deltaCol + col > 7) {
       return false;
     }
-    if (gameBoard[deltaRow + row][deltaCol + col] != other) {
+    if (gameBoard[deltaRow + row][deltaCol + col] !== other) {
       return false;
     }
     if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
@@ -181,7 +191,20 @@ export default class App extends React.Component {
     if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
       return false;
     }
-
+    // console.log('checkLineMatch', row, col, this.state.validMoves[row][col]);
+    console.log(
+      `line195 who: ${who} row${row} col${col} dRow${deltaRow} dCol${deltaCol} gameBoard[${row}][${col}]: `,
+      gameBoard[row][col],
+      'ckLnMtch: ',
+      this.checkLineMatch(
+        who,
+        deltaRow,
+        deltaCol,
+        row + deltaRow + deltaRow,
+        col + deltaCol + deltaCol,
+        gameBoard
+      )
+    );
     return this.checkLineMatch(
       who,
       deltaRow,
@@ -223,6 +246,7 @@ export default class App extends React.Component {
   };
 
   onTilePress = (row, col) => {
+    console.log(' line 245 onTilePress');
     //Don't allow tiles to change:
     let value = this.state.gameState[row][col];
     if (value !== 0) {
@@ -234,20 +258,27 @@ export default class App extends React.Component {
 
     // calculate valid moves:
     this.calculateValidMoves(currentPlayer, this.state.gameState);
+    console.log(
+      `validMoves after calculate row${row}+1 col${col}+1: `,
+      this.state.validMoves[row][col]
+    );
 
     // //Set correct tile:
     let arr = this.state.gameState.slice();
-    console.log(
-      `tilePress validMoves[${row}][${col}]: `,
-      this.state.validMoves[row][col]
-    );
+    // console.log('onTilePress arr', arr);
+    // console.log(
+    //   'currentPlayer: ',
+    //   currentPlayer,
+    //   `tilePress validMoves[${row}][${col}]: `,
+    //   this.state.validMoves[row][col]
+    // );
     if (this.state.validMoves[row][col] === 'v') {
       arr[row][col] = currentPlayer;
     }
     this.setState({ gameState: arr });
 
     //swap players:
-    let nextPlayer = currentPlayer === 1 ? -1 : 1;
+    let nextPlayer = currentPlayer === 1 ? 2 : 1;
     this.setState({ currentPlayer: nextPlayer });
 
     // check score:
@@ -260,7 +291,7 @@ export default class App extends React.Component {
     //   Alert.alert('Player one wins!');
     //   this.initializeGame();
     // }
-    // if (winner === -1) {
+    // if (winner === 2) {
     //   Alert.alert('Player two wins!');
     //   this.initializeGame();
     // }
@@ -271,7 +302,7 @@ export default class App extends React.Component {
     switch (value) {
       case 1:
         return <Icon name="close" style={styles.tileX} />;
-      case -1:
+      case 2:
         return <Icon name="circle-outline" style={styles.tileO} />;
       default:
         return <View />;
@@ -282,6 +313,35 @@ export default class App extends React.Component {
     return (
       <View style={[styles.container, styles.welcome]}>
         <Text> Welcome to Othello</Text>
+        {/* X axis Label--------------------- */}
+
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View style={[styles.blankTile]} />
+
+          <Text style={[styles.numTile]}>1</Text>
+
+          <Text style={[styles.numTile]}>2</Text>
+
+          <Text style={[styles.numTile]}>3</Text>
+
+          <Text style={[styles.numTile]}>4</Text>
+
+          <Text style={[styles.numTile]}>5</Text>
+
+          <Text style={[styles.numTile]}>6</Text>
+
+          <Text style={[styles.numTile]}>7</Text>
+
+          <Text style={[styles.numTile]}>8</Text>
+
+          <View style={[styles.blankTile]} />
+        </View>
         {/* line 1--------------------- */}
         <View
           style={{
@@ -290,6 +350,8 @@ export default class App extends React.Component {
             justifyContent: 'center',
           }}
         >
+          <Text style={[styles.letterTile]}>A</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(0, 0)}
             style={[styles.tile]}
@@ -345,10 +407,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(0, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>A</Text>
         </View>
         {/* line 2--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>B</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(1, 0)}
             style={[styles.tile]}
@@ -404,10 +469,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(1, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>B</Text>
         </View>
         {/* line 3--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>C</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(2, 0)}
             style={[styles.tile]}
@@ -463,10 +531,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(2, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>C</Text>
         </View>
         {/* line 4--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>D</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(3, 0)}
             style={[styles.tile]}
@@ -522,10 +593,14 @@ export default class App extends React.Component {
           >
             {this.renderIcon(3, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>D</Text>
         </View>
+
         {/* line 5--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>E</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(4, 0)}
             style={[styles.tile]}
@@ -581,10 +656,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(4, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>E</Text>
         </View>
         {/* line 6--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>F</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(5, 0)}
             style={[styles.tile]}
@@ -640,10 +718,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(5, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>F</Text>
         </View>
         {/* line 7--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>G</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(6, 0)}
             style={[styles.tile]}
@@ -699,10 +780,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(6, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>G</Text>
         </View>
         {/* line 8--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
+          <Text style={[styles.letterTile]}>H</Text>
+
           <TouchableOpacity
             onPress={() => this.onTilePress(7, 0)}
             style={[styles.tile]}
@@ -758,10 +842,43 @@ export default class App extends React.Component {
           >
             {this.renderIcon(7, 7)}
           </TouchableOpacity>
+          <Text style={[styles.letterTile]}>H</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <View style={[styles.blankTile]} />
+
+          <Text style={[styles.numTile]}>1</Text>
+
+          <Text style={[styles.numTile]}>2</Text>
+
+          <Text style={[styles.numTile]}>3</Text>
+
+          <Text style={[styles.numTile]}>4</Text>
+
+          <Text style={[styles.numTile]}>5</Text>
+
+          <Text style={[styles.numTile]}>6</Text>
+
+          <Text style={[styles.numTile]}>7</Text>
+
+          <Text style={[styles.numTile]}>8</Text>
+
+          <View style={[styles.blankTile]} />
         </View>
 
         <View style={{ paddingTop: 50 }} />
         <Button title="New Game" onPress={this.onNewGamePress} />
+
+        <View style={{ paddingTop: 50 }} />
+        <Text>
+          Current Player: {this.state.currentPlayer === 1 ? 'X' : 'O'}
+        </Text>
 
         <View style={{ paddingTop: 50 }} />
         <Text>
@@ -784,7 +901,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'purple',
   },
   tile: {
     borderWidth: 2,
@@ -792,6 +909,38 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  numTile: {
+    paddingLeft: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingRight: 8,
+    fontSize: 20,
+    color: 'white',
+    backgroundColor: 'blueviolet',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  letterTile: {
+    paddingLeft: 10,
+    paddingTop: 5,
+    paddingBottom: 10,
+    paddingRight: 10,
+    fontSize: 20,
+    color: 'white',
+    backgroundColor: 'blue',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  blankTile: {
+    backgroundColor: 'transparent',
+    width: 40,
+    height: 40,
   },
   tileX: {
     color: 'red',
