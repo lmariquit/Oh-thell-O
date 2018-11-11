@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import * as React from 'react';
 import {
   Text,
@@ -29,10 +30,10 @@ export default class App extends React.Component {
       validMoves: [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 1, 2, 0, 0, 0],
-        [0, 0, 1, 0, 0, 2, 0, 0],
-        [0, 0, 2, 0, 0, 1, 0, 0],
-        [0, 0, 0, 2, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
       ],
@@ -43,10 +44,6 @@ export default class App extends React.Component {
       playerTwoCount: 0,
       SIZE: 8,
       SIZE2: 64,
-      // OP: {
-      //   MINUS: 0,
-      //   PLUS: 1,
-      // },
     };
   }
 
@@ -61,9 +58,9 @@ export default class App extends React.Component {
   //   this.whiteCount();
   // }
 
-  initializeGame = () => {
-    console.log('initializeGame()');
-    this.setState({
+  initializeGame = async () => {
+    console.log('\n-----------------initializeGame()');
+    await this.setState({
       gameState: [
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -117,57 +114,76 @@ export default class App extends React.Component {
 
   onNewGamePress = () => {
     this.initializeGame();
+
+    // this.setState({
+    //   gameState: [
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 2, 1, 0, 0, 0],
+    //     [0, 0, 0, 1, 2, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //     [0, 0, 0, 0, 0, 0, 0, 0],
+    //   ],
+    //   currentPlayer: 1,
+    // });
+    // this.initializeGame();
+
     this.whiteCount();
     this.blackCount();
   };
 
   // eslint-disable-next-line complexity
-  calculateValidMoves(who, gameBoard) {
-    let validBoard = [
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0],
-    ];
-
+  // eslint-disable-next-line max-statements
+  async calculateValidMoves(who, gameBoard) {
+    await this.setState({
+      validMoves: [
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+      ],
+    });
+    console.log(
+      '\ncalculateValidMoves currentPlayer: ',
+      this.state.currentPlayer,
+      '\n'
+    );
     for (let row = 0; row < 8; row++) {
       for (let col = 0; col < 8; col++) {
-        if (gameBoard[row][col] === 0) {
+        if (gameBoard[row][col] === this.state.currentPlayer) {
           // console.log(
           //   `gameboard[${row}][${col}] before calculate moves`,
           //   gameBoard[row][col]
           // );
+
           // check above current spot
           let nw = this.validMove(who, -1, -1, row, col, gameBoard);
           let nn = this.validMove(who, -1, 0, row, col, gameBoard);
           let ne = this.validMove(who, -1, 1, row, col, gameBoard);
           // check alongside current spot
           let ww = this.validMove(who, 0, -1, row, col, gameBoard);
+
           let ee = this.validMove(who, 0, 1, row, col, gameBoard);
           // check below current spot
           let sw = this.validMove(who, 1, -1, row, col, gameBoard);
           let ss = this.validMove(who, 1, 0, row, col, gameBoard);
           let se = this.validMove(who, 1, 1, row, col, gameBoard);
 
-          if (nw || nn || ne || ww || ee || sw || ss || se) {
-            validBoard[row][col] = 'v';
-            console.log(
-              `line 158 validBoard[${row}][${col}] after calculate`,
-              validBoard[row][col]
-            );
-          }
-          // console.log(
-          //   `calculated validBoard[${row}][${col}]: ${validBoard[row][col]} `
-          // );
+          // if(nw || nn || ne || ww || ee || sw || ss || se){
+          //   validBoard[row][col] = 'v';
+
+          // }
         }
       }
     }
     // console.log('calculated valid move: ', validBoard);
-    this.setState({ validMoves: validBoard });
+    // this.setState({ validMoves: validBoard });
   }
 
   // check if position at row, col contains the oppsite of currentPLayer on board && checks if the line adding deltaRow + row || deltaCol + col eventually ends in currentPlayer coloe
@@ -191,51 +207,20 @@ export default class App extends React.Component {
     if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
       return false;
     }
-    // console.log('checkLineMatch', row, col, this.state.validMoves[row][col]);
-    console.log(
-      `line195 who: ${who} row${row} col${col} dRow${deltaRow} dCol${deltaCol} gameBoard[${row}][${col}]: `,
-      gameBoard[row][col],
-      'ckLnMtch: ',
-      this.checkLineMatch(
-        who,
-        deltaRow,
-        deltaCol,
-        row + deltaRow + deltaRow,
-        col + deltaCol + deltaCol,
-        gameBoard
-      )
-    );
-    return this.checkLineMatch(
-      who,
-      deltaRow,
-      deltaCol,
-      row + deltaRow + deltaRow,
-      col + deltaCol + deltaCol,
-      gameBoard
-    );
-  };
-
-  // check if there's opposing color on line starting at row,col and on
-  checkLineMatch = (who, deltaRow, deltaCol, row, col, gameBoard) => {
-    if (gameBoard[row][col] === who) {
-      return true;
-    }
-    if (deltaRow + row < 0 || row + deltaRow > 7) {
-      return false;
-    }
-    if (deltaCol + col < 0 || col + deltaCol > 7) {
-      return false;
-    }
     // console.log(
-    //   'row: ',
-    //   row,
-    //   ' col: ',
-    //   col,
-    //   ' gameState: ',
-    //   this.state.gameState[row][col]
+    //   `line182 who: ${who} row${row} col${col} dRow${deltaRow} dCol${deltaCol} gameBoard[${row}][${col}]: `,
+    //   gameBoard[row][col],
+    //   'ckLnMtch: ',
+    //   this.checkLineMatch(
+    //     who,
+    //     deltaRow,
+    //     deltaCol,
+    //     row + deltaRow,
+    //     col + deltaCol,
+    //     gameBoard
+    //   )
     // );
-    // return true;
-    this.checkLineMatch(
+    return this.checkLineMatch(
       who,
       deltaRow,
       deltaCol,
@@ -245,11 +230,220 @@ export default class App extends React.Component {
     );
   };
 
-  onTilePress = (row, col) => {
-    console.log(' line 245 onTilePress');
+  // check if there's opposing color on line starting at row,col and on
+  checkLineMatch = async (who, deltaRow, deltaCol, row, col, gameBoard) => {
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
+
+    if (gameBoard[row][col] === 0) {
+      let validBoard = this.state.validMoves.slice();
+      validBoard[row][col] = 'v';
+      await this.setState({ validMoves: validBoard });
+      console.log(
+        `checkLineMatch Player: ${who} this.state.validMoves[${row}][${col}] after calculate:`,
+        this.state.validMoves[row][col]
+      );
+      return true;
+    }
+    // if (gameBoard[row][col] === other) {
+    //   this.checkLineMatch(
+    //     who,
+    //     deltaRow,
+    //     deltaCol,
+    //     row + deltaRow,
+    //     col + deltaCol,
+    //     gameBoard
+    //   );
+    // }
+    if (gameBoard[row][col] === who) {
+      return false;
+    }
+
+    if (deltaRow + row < 0 || row + deltaRow > 7) {
+      return false;
+    }
+    if (deltaCol + col < 0 || col + deltaCol > 7) {
+      return false;
+    }
+
+    // return true;
+    return this.checkLineMatch(
+      who,
+      deltaRow,
+      deltaCol,
+      row + deltaRow,
+      col + deltaCol,
+      gameBoard
+    );
+  };
+
+  turnTiles(who, row, col, gameBoard) {
+    // if (this.state.currentPlayer === 1) {
+    //   let other = 2;
+    // } else {
+    //   let other = 1;
+    // }
+
+    // if (gameBoard[row][col] === this.state.currentPlayer) {
+
+    // check above current spot
+    let nw = this.validSwap(who, -1, -1, row, col, gameBoard);
+    let nn = this.validSwap(who, -1, 0, row, col, gameBoard);
+    let ne = this.validSwap(who, -1, 1, row, col, gameBoard);
+    // check alongside current spot
+    let ww = this.validSwap(who, 0, -1, row, col, gameBoard);
+
+    let ee = this.validSwap(who, 0, 1, row, col, gameBoard);
+    // check below current spot
+    let sw = this.validSwap(who, 1, -1, row, col, gameBoard);
+    let ss = this.validSwap(who, 1, 0, row, col, gameBoard);
+    let se = this.validSwap(who, 1, 1, row, col, gameBoard);
+
+    // if(nw || nn || ne || ww || ee || sw || ss || se){
+    //   validBoard[row][col] = 'v';
+
+    // }
+    // }
+  }
+
+  validSwap(who, deltaRow, deltaCol, row, col, gameBoard) {
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
+
+    if (deltaRow + row < 0 || row + deltaRow > 7) {
+      return false;
+    }
+    if (deltaCol + col < 0 || deltaCol + col > 7) {
+      return false;
+    }
+    if (gameBoard[deltaRow + row][deltaCol + col] !== other) {
+      return false;
+    }
+    if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
+      return false;
+    }
+    if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
+      return false;
+    }
+    console.log(
+      `validSwap newPiece on gameBoard[${row}][${col}]: `,
+      gameBoard[row][col]
+    );
+    // if (
+    //   this.checkTurnLine(
+    //     who,
+    //     deltaRow,
+    //     deltaCol,
+    //     row + deltaRow,
+    //     col + deltaCol,
+    //     gameBoard
+    //   )
+    // ) {
+    //   gameBoard[row][col] = this.state.currentPlayer;
+    // }
+    return this.checkTurnLine(
+      who,
+      deltaRow,
+      deltaCol,
+      row + deltaRow,
+      col + deltaCol,
+      gameBoard
+    );
+
+    // return this.checkTurnLine(
+    //   who,
+    //   deltaRow,
+    //   deltaCol,
+    //   row + deltaRow,
+    //   col + deltaCol,
+    //   gameBoard
+    // );
+  }
+
+  checkTurnLine = async (who, deltaRow, deltaCol, row, col, gameBoard) => {
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
+
+    if (
+      gameBoard[row + deltaRow][col + deltaCol] === this.state.currentPlayer
+    ) {
+      gameBoard[row][col] = this.state.currentPlayer;
+      await this.turnLine(
+        who,
+        deltaRow,
+        deltaCol,
+        row - deltaRow,
+        col - deltaCol,
+        gameBoard
+      );
+
+      await this.setState({ gameState: gameBoard });
+
+      return true;
+    }
+    // if (gameBoard[row][col] === other) {
+    //   this.checkTurnLine(
+    //     who,
+    //     deltaRow,
+    //     deltaCol,
+    //     row + deltaRow,
+    //     col + deltaCol,
+    //     gameBoard
+    //   );
+    // }
+    if (gameBoard[row][col] === 0) {
+      return false;
+    }
+
+    if (deltaRow + row < 0 || row + deltaRow > 7) {
+      return false;
+    }
+    if (deltaCol + col < 0 || col + deltaCol > 7) {
+      return false;
+    }
+
+    // return true;
+    return this.checkTurnLine(
+      who,
+      deltaRow,
+      deltaCol,
+      row + deltaRow,
+      col + deltaCol,
+      gameBoard
+    );
+  };
+
+  async turnLine(who, deltaRow, deltaCol, row, col, gameBoard) {
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
+
+    if (gameBoard[row][col] === other) {
+      gameBoard[row][col] = this.state.currentPlayer;
+
+      this.turnLine(
+        who,
+        deltaRow,
+        deltaCol,
+        row - deltaRow,
+        col - deltaCol,
+        gameBoard
+      );
+    }
+    if (gameBoard[row][col] === this.state.currentPlayer) {
+      await this.setState({ gameState: gameBoard });
+    }
+    if (gameBoard[row][col] === 0) {
+      return false;
+    }
+    if (deltaRow - row < 0 || row - deltaRow > 7) {
+      return false;
+    }
+    if (deltaCol - col < 0 || col - deltaCol > 7) {
+      return false;
+    }
+  }
+
+  onTilePress = async (row, col) => {
+    console.log(`\nonTilePress row${row} col${col}`);
     //Don't allow tiles to change:
-    let value = this.state.gameState[row][col];
-    if (value !== 0) {
+    let value = this.state.validMoves[row][col];
+    if (value !== 'v') {
       return;
     }
 
@@ -257,33 +451,36 @@ export default class App extends React.Component {
     let currentPlayer = this.state.currentPlayer;
 
     // calculate valid moves:
-    this.calculateValidMoves(currentPlayer, this.state.gameState);
+    // this.calculateValidMoves(currentPlayer, this.state.gameState);
     console.log(
-      `validMoves after calculate row${row}+1 col${col}+1: `,
+      `onTilePress validMoves[${row}][${col}]: `,
       this.state.validMoves[row][col]
     );
 
     // //Set correct tile:
     let arr = this.state.gameState.slice();
-    // console.log('onTilePress arr', arr);
-    // console.log(
-    //   'currentPlayer: ',
-    //   currentPlayer,
-    //   `tilePress validMoves[${row}][${col}]: `,
-    //   this.state.validMoves[row][col]
-    // );
-    if (this.state.validMoves[row][col] === 'v') {
-      arr[row][col] = currentPlayer;
-    }
-    this.setState({ gameState: arr });
+
+    arr[row][col] = currentPlayer;
+
+    this.turnTiles(currentPlayer, row, col, arr);
+
+    await this.setState({ gameState: arr });
 
     //swap players:
-    let nextPlayer = currentPlayer === 1 ? 2 : 1;
-    this.setState({ currentPlayer: nextPlayer });
+    if (this.state.currentPlayer === 1) {
+      await this.setState({ currentPlayer: 2 });
+    } else {
+      await this.setState({ currentPlayer: 1 });
+    }
+    // let nextPlayer = currentPlayer === 1 ? 2 : 1;
+    // this.setState({ currentPlayer: nextPlayer });
 
     // check score:
     this.blackCount();
     this.whiteCount();
+
+    // check new valid moves
+    this.calculateValidMoves(this.state.currentPlayer, this.state.gameState);
 
     //Check for Winners
     // let winner = this.getWinner();
@@ -350,7 +547,7 @@ export default class App extends React.Component {
             justifyContent: 'center',
           }}
         >
-          <Text style={[styles.letterTile]}>A</Text>
+          <Text style={[styles.letterTile]}>1</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(0, 0)}
@@ -407,12 +604,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(0, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>A</Text>
+          <Text style={[styles.letterTile]}>1</Text>
         </View>
         {/* line 2--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>B</Text>
+          <Text style={[styles.letterTile]}>2</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(1, 0)}
@@ -469,12 +666,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(1, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>B</Text>
+          <Text style={[styles.letterTile]}>2</Text>
         </View>
         {/* line 3--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>C</Text>
+          <Text style={[styles.letterTile]}>3</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(2, 0)}
@@ -531,12 +728,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(2, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>C</Text>
+          <Text style={[styles.letterTile]}>3</Text>
         </View>
         {/* line 4--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>D</Text>
+          <Text style={[styles.letterTile]}>4</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(3, 0)}
@@ -593,13 +790,13 @@ export default class App extends React.Component {
           >
             {this.renderIcon(3, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>D</Text>
+          <Text style={[styles.letterTile]}>4</Text>
         </View>
 
         {/* line 5--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>E</Text>
+          <Text style={[styles.letterTile]}>5</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(4, 0)}
@@ -656,12 +853,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(4, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>E</Text>
+          <Text style={[styles.letterTile]}>5</Text>
         </View>
         {/* line 6--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>F</Text>
+          <Text style={[styles.letterTile]}>6</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(5, 0)}
@@ -718,12 +915,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(5, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>F</Text>
+          <Text style={[styles.letterTile]}>6</Text>
         </View>
         {/* line 7--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>G</Text>
+          <Text style={[styles.letterTile]}>7</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(6, 0)}
@@ -780,12 +977,12 @@ export default class App extends React.Component {
           >
             {this.renderIcon(6, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>G</Text>
+          <Text style={[styles.letterTile]}>7</Text>
         </View>
         {/* line 8--------------------- */}
 
         <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.letterTile]}>H</Text>
+          <Text style={[styles.letterTile]}>8</Text>
 
           <TouchableOpacity
             onPress={() => this.onTilePress(7, 0)}
@@ -842,7 +1039,7 @@ export default class App extends React.Component {
           >
             {this.renderIcon(7, 7)}
           </TouchableOpacity>
-          <Text style={[styles.letterTile]}>H</Text>
+          <Text style={[styles.letterTile]}>8</Text>
         </View>
         <View
           style={{
@@ -909,7 +1106,8 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: 'black',
+    borderColor: 'white',
   },
   numTile: {
     paddingLeft: 12,
@@ -944,11 +1142,11 @@ const styles = StyleSheet.create({
   },
   tileX: {
     color: 'red',
-    fontSize: 20,
+    fontSize: 30,
   },
   tileO: {
     color: 'green',
-    fontSize: 20,
+    fontSize: 30,
   },
   welcome: {
     fontSize: 40,
