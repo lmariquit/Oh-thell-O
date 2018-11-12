@@ -331,14 +331,14 @@ export default class App extends React.Component {
     if (gameBoard[deltaRow + row][deltaCol + col] !== other) {
       return false;
     }
-    if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
-      return false;
-    }
-    if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
-      return false;
-    }
+    // if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
+    //   return false;
+    // }
+    // if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
+    //   return false;
+    // }
     console.log(
-      `validSwap newPiece on gameBoard[${row}][${col}]: `,
+      `hitting validSwap line 341 newPiece on gameBoard[${row}][${col}]: `,
       gameBoard[row][col]
     );
     // if (
@@ -373,10 +373,25 @@ export default class App extends React.Component {
   }
 
   checkTurnLine = async (who, deltaRow, deltaCol, row, col, gameBoard) => {
+    console.log(`hitting checkTurnLine line 376 row${row} col${col}`);
     if (deltaRow + row < 0 || row + deltaRow > 7) {
       return false;
     }
     if (deltaCol + col < 0 || deltaCol + col > 7) {
+      return false;
+    }
+
+    // if (gameBoard[row][col] === other) {
+    //   this.checkTurnLine(
+    //     who,
+    //     deltaRow,
+    //     deltaCol,
+    //     row + deltaRow,
+    //     col + deltaCol,
+    //     gameBoard
+    //   );
+    // }
+    if (gameBoard[row][col] === 0) {
       return false;
     }
     if (
@@ -396,41 +411,21 @@ export default class App extends React.Component {
 
       return true;
     }
-    // if (gameBoard[row][col] === other) {
-    //   this.checkTurnLine(
-    //     who,
-    //     deltaRow,
-    //     deltaCol,
-    //     row + deltaRow,
-    //     col + deltaCol,
-    //     gameBoard
-    //   );
-    // }
-    if (gameBoard[row][col] === 0) {
-      return false;
-    }
-
-    if (deltaRow + row < 0 || row + deltaRow > 7) {
-      return false;
-    }
-    if (deltaCol + col < 0 || col + deltaCol > 7) {
-      return false;
-    }
 
     // return true;
-    return this.checkTurnLine(
-      who,
-      deltaRow,
-      deltaCol,
-      row + deltaRow,
-      col + deltaCol,
-      gameBoard
-    );
+    // return this.checkTurnLine(
+    //   who,
+    //   deltaRow,
+    //   deltaCol,
+    //   row + deltaRow,
+    //   col + deltaCol,
+    //   gameBoard
+    // );
   };
 
   async turnLine(who, deltaRow, deltaCol, row, col, gameBoard) {
     let other = this.state.currentPlayer === 1 ? 2 : 1;
-
+    console.log(`hitting turnLine line 428 row${row} col${col}`);
     if (gameBoard[row][col] === other) {
       gameBoard[row][col] = this.state.currentPlayer;
 
@@ -480,6 +475,7 @@ export default class App extends React.Component {
   // }
 
   getWinner() {
+    console.log('hitting getWinner line 478');
     if (64 - this.state.playerOneCount - this.state.playerTwoCount < 1) {
       return this.state.playerOneCount > this.state.playerTwoCount ? 1 : 2;
     }
@@ -515,17 +511,17 @@ export default class App extends React.Component {
 
     // calculate valid moves:
     // this.calculateValidMoves(currentPlayer, this.state.gameState);
-    console.log(
-      `onTilePress validMoves[${row}][${col}]: `,
-      this.state.validMoves[row][col]
-    );
+    // console.log(
+    //   `onTilePress validMoves[${row}][${col}]: `,
+    //   this.state.validMoves[row][col]
+    // );
 
     // //Set correct tile:
     let arr = this.state.gameState.slice();
 
     arr[row][col] = currentPlayer;
 
-    this.turnTiles(currentPlayer, row, col, arr);
+    await this.turnTiles(currentPlayer, row, col, arr);
 
     await this.setState({ gameState: arr });
 
@@ -546,11 +542,15 @@ export default class App extends React.Component {
     // this.setState({ currentPlayer: nextPlayer });
 
     // check score:
-    this.blackCount();
-    this.whiteCount();
+    await this.blackCount();
+    await this.whiteCount();
 
     // check new valid moves
-    this.calculateValidMoves(this.state.currentPlayer, this.state.gameState);
+    console.log(`hitting 549 in onTilePress row${row} col${col}`);
+    await this.calculateValidMoves(
+      this.state.currentPlayer,
+      this.state.gameState
+    );
 
     // Check for Winners
     let winner = this.getWinner();
