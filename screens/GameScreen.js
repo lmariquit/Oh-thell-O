@@ -75,11 +75,14 @@ export default class App extends React.Component {
       ],
       currentPlayer: 1,
     });
-    this.calculateValidMoves(this.state.currentPlayer, this.state.gameState);
+    await this.calculateValidMoves(
+      this.state.currentPlayer,
+      this.state.gameState
+    );
     // this.historyPush();
   };
 
-  whiteCount() {
+  async whiteCount() {
     let count = 0;
     let cells = this.state.gameState;
     cells.map(row => {
@@ -89,10 +92,10 @@ export default class App extends React.Component {
         }
       });
     });
-    return this.setState({ playerTwoCount: count });
+    await this.setState({ playerTwoCount: count });
   }
 
-  blackCount() {
+  async blackCount() {
     let count = 0;
     let cells = this.state.gameState;
 
@@ -103,7 +106,7 @@ export default class App extends React.Component {
         }
       });
     });
-    return this.setState({ playerOneCount: count });
+    await this.setState({ playerOneCount: count });
   }
 
   emptyCount() {
@@ -520,7 +523,7 @@ export default class App extends React.Component {
     let arr = this.state.gameState.slice();
 
     arr[row][col] = currentPlayer;
-
+    console.log(`hitting onTilePress line 526 row${row} col${col}`);
     await this.turnTiles(currentPlayer, row, col, arr);
 
     await this.setState({ gameState: arr });
