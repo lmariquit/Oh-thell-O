@@ -160,7 +160,7 @@ export default class App extends React.Component {
       for (let col = 0; col < 8; col++) {
         if (gameBoard[row][col] === this.state.currentPlayer) {
           // console.log(
-          //   `gameboard[${row}][${col}] before calculate moves`,
+          //   ` line 162 gameboard[${row}][${col}] before calculate moves`,
           //   gameBoard[row][col]
           // );
 
@@ -192,16 +192,26 @@ export default class App extends React.Component {
           /*se*/ if (this.validMove(who, 1, 1, row, col, gameBoard)) {
             validMoveCounter++;
           }
+        }
+        if (validMoveCounter === 0 && row === 7 && col === 7) {
+          let other = this.state.currentPlayer === 1 ? 2 : 1;
 
-          if (!validMoveCounter > 0) {
-            let other = this.state.currentPlayer === 1 ? 2 : 1;
-            this.setState({
-              currentPlayer: other,
-            });
-          }
+          console.log(
+            `no valid moves left for player:${this.state.currentPlayer}`
+          );
+          Alert.alert(`Player ${this.state.currentPlayer} wins!`);
+          this.initializeGame();
         }
       }
     }
+    if (!validMoveCounter > 1) {
+      console.log('validMoveCounter < 1', validMoveCounter);
+      let other = this.state.currentPlayer === 1 ? 2 : 1;
+      this.setState({
+        currentPlayer: other,
+      });
+    }
+
     // console.log('calculated valid move: ', validBoard);
     // this.setState({ validMoves: validBoard });
   }
@@ -221,25 +231,13 @@ export default class App extends React.Component {
     if (gameBoard[deltaRow + row][deltaCol + col] !== other) {
       return false;
     }
-    if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
-      return false;
-    }
-    if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
-      return false;
-    }
-    // console.log(
-    //   `line182 who: ${who} row${row} col${col} dRow${deltaRow} dCol${deltaCol} gameBoard[${row}][${col}]: `,
-    //   gameBoard[row][col],
-    //   'ckLnMtch: ',
-    //   this.checkLineMatch(
-    //     who,
-    //     deltaRow,
-    //     deltaCol,
-    //     row + deltaRow,
-    //     col + deltaCol,
-    //     gameBoard
-    //   )
-    // );
+    // if (deltaRow + deltaRow + row < 0 || row + deltaRow + deltaRow > 7) {
+    //   return false;
+    // }
+    // if (deltaCol + deltaCol + col < 0 || deltaCol + deltaCol + col > 7) {
+    //   return false;
+    // }
+
     return this.checkLineMatch(
       who,
       deltaRow,
@@ -341,7 +339,7 @@ export default class App extends React.Component {
     //   return false;
     // }
     console.log(
-      `hitting validSwap line 341 newPiece on gameBoard[${row}][${col}]: `,
+      `hitting validSwap line 333 newPiece on deltaRow${deltaRow} deltaCol${deltaCol} gameBoard[${row}][${col}]: `,
       gameBoard[row][col]
     );
     // if (
@@ -376,7 +374,11 @@ export default class App extends React.Component {
   }
 
   checkTurnLine = async (who, deltaRow, deltaCol, row, col, gameBoard) => {
-    console.log(`hitting checkTurnLine line 376 row${row} col${col}`);
+    console.log(
+      `hitting checkTurnLine line 368 who:${who} row${row} col${col}`
+    );
+    let other = this.state.currentPlayer === 1 ? 2 : 1;
+
     if (deltaRow + row < 0 || row + deltaRow > 7) {
       return false;
     }
@@ -384,29 +386,33 @@ export default class App extends React.Component {
       return false;
     }
 
-    // if (gameBoard[row][col] === other) {
-    //   this.checkTurnLine(
-    //     who,
-    //     deltaRow,
-    //     deltaCol,
-    //     row + deltaRow,
-    //     col + deltaCol,
-    //     gameBoard
-    //   );
-    // }
+    if (gameBoard[row][col] === other) {
+      this.checkTurnLine(
+        who,
+        deltaRow,
+        deltaCol,
+        row + deltaRow,
+        col + deltaCol,
+        gameBoard
+      );
+    }
     if (gameBoard[row][col] === 0) {
       return false;
     }
     if (
       gameBoard[row + deltaRow][col + deltaCol] === this.state.currentPlayer
     ) {
+      console.log(
+        `392 checkTurnLine row${row} col${col} deltaRow${deltaRow} deltaCol${deltaCol}`
+      );
+
       gameBoard[row][col] = this.state.currentPlayer;
       await this.turnLine(
         who,
         deltaRow,
         deltaCol,
-        row - deltaRow,
-        col - deltaCol,
+        row + deltaRow,
+        col + deltaCol,
         gameBoard
       );
 
@@ -478,7 +484,7 @@ export default class App extends React.Component {
   // }
 
   getWinner() {
-    console.log('hitting getWinner line 478');
+    console.log('hitting getWinner line 469');
     if (64 - this.state.playerOneCount - this.state.playerTwoCount < 1) {
       return this.state.playerOneCount > this.state.playerTwoCount ? 1 : 2;
     }
@@ -505,6 +511,10 @@ export default class App extends React.Component {
     console.log(`\nonTilePress row${row} col${col}`);
     //Don't allow tiles to change:
     let value = this.state.validMoves[row][col];
+    console.log(
+      `hitting value line 508 validMoves row${row} col ${col}`,
+      this.state.validMoves[row][col]
+    );
     if (value !== 'v') {
       return;
     }
@@ -513,11 +523,10 @@ export default class App extends React.Component {
     let currentPlayer = this.state.currentPlayer;
 
     // calculate valid moves:
-    // this.calculateValidMoves(currentPlayer, this.state.gameState);
-    // console.log(
-    //   `onTilePress validMoves[${row}][${col}]: `,
-    //   this.state.validMoves[row][col]
-    // );
+    await this.calculateValidMoves(
+      this.state.currentPlayer,
+      this.state.gameState
+    );
 
     // //Set correct tile:
     let arr = this.state.gameState.slice();
@@ -548,13 +557,6 @@ export default class App extends React.Component {
     await this.blackCount();
     await this.whiteCount();
 
-    // check new valid moves
-    console.log(`hitting 549 in onTilePress row${row} col${col}`);
-    await this.calculateValidMoves(
-      this.state.currentPlayer,
-      this.state.gameState
-    );
-
     // Check for Winners
     let winner = this.getWinner();
     if (winner === 1) {
@@ -565,6 +567,13 @@ export default class App extends React.Component {
       Alert.alert('Player two wins!');
       this.initializeGame();
     }
+
+    // check new valid moves
+    console.log(`hitting 554 in onTilePress row${row} col${col}`);
+    await this.calculateValidMoves(
+      this.state.currentPlayer,
+      this.state.gameState
+    );
   };
 
   renderIcon = (row, col) => {
