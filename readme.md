@@ -10,6 +10,7 @@
 
 (I've never used React-Native prior to this project)
 
+- Ongoing development. Check in from time to time to see whats new!
 - Originated in England in 1880’s
 - Othello is a marketing name for a simplified, western version of GO :
 
