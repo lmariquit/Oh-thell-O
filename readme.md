@@ -12,7 +12,9 @@
 
 - Ongoing development. Check in from time to time to see whats new!
 - Originated in England in 1880’s
-- Othello is a marketing name for a simplified, western version of GO :
+- Othello is a marketing name for a simplified, western version of GO.
+- Watch a presentation of the first version of this implementation on youtube: 
+  [https://www.youtube.com/watch?v=nOfFKS_U_Mw]
 
 #### **_Basic Rules:_**
 
